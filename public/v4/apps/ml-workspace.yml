@@ -1,15 +1,15 @@
 captainVersion: 4
 version: '3'
 services:
-   $$cap_appname:
-    restart: unless-stopped
-    volumes:
-      - $$cap_workspace_path:/workspace
-    environment:
-        AUTHENTICATE_VIA_JUPYTER: $$cap_jupyterlab_token
-    caproverExtra:
-        containerHttpPort: '8080'
-        dockerfileLines:
+    $$cap_appname:
+        restart: unless-stopped
+        volumes:
+            - $$cap_workspace_path:/workspace
+        environment:
+            AUTHENTICATE_VIA_JUPYTER: $$cap_jupyterlab_token
+        caproverExtra:
+            containerHttpPort: '8080'
+            dockerfileLines:
                 - FROM mltooling/ml-workspace:0.13.2
                 - WORKDIR /workspace
 caproverOneClickApp:
