@@ -7,10 +7,10 @@ services:
         volumes:
             - $$cap_appname-db-data:/var/lib/questdb
         environment:
-          QDB_HTTP_BIND_TO: $$cap_qdb_http_bind_to
+            QDB_HTTP_BIND_TO: $$cap_qdb_http_bind_to
         caproverExtra:
-          containerHttpPort: '9000'
-          notExposeAsWebApp: 'true'
+            containerHttpPort: '9000'
+            notExposeAsWebApp: 'true'
 caproverOneClickApp:
     variables:
         - id: $$cap_questdb_version
