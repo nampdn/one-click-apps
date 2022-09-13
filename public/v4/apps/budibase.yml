@@ -1,0 +1,148 @@
+captainVersion: 4
+version: "3"
+# optional ports are specified throughout for more advanced use cases.
+
+services:
+  $$cap_appname:
+    restart: unless-stopped
+    image: budibase.docker.scarf.sh/budibase/apps
+    environment:
+      SELF_HOSTED: 1
+      COUCH_DB_URL: $$cap_COUCH_DB_URL
+      WORKER_URL: $$cap_appname_worker.$$cap_root_domain
+      MINIO_URL: $$cap_MINIO_URL
+      MINIO_ACCESS_KEY: $$cap_MINIO_ACCESS_KEY
+      MINIO_SECRET_KEY: $$cap_MINIO_SECRET_KEY
+      INTERNAL_API_KEY: $$cap_INTERNAL_API_KEY
+      BUDIBASE_ENVIRONMENT: $$cap_BUDIBASE_ENVIRONMENT
+      PORT: 4002
+      JWT_SECRET: $$cap_JWT_SECRET
+      LOG_LEVEL: $$cap_LOG_LEVEL
+      SENTRY_DSN: $$cap_SENTRY_DSN
+      ENABLE_ANALYTICS: $$cap_ENABLE_ANALYTICS
+      REDIS_URL: $$cap_REDIS_URL
+      REDIS_PASSWORD: $$cap_REDIS_PASSWORD
+      BB_ADMIN_USER_EMAIL: $$cap_BB_ADMIN_USER_EMAIL
+      BB_ADMIN_USER_PASSWORD: $$cap_BB_ADMIN_USER_PASSWORD
+    depends_on:
+      - $$cap_appname-worker
+  $$cap_appname-worker:
+    restart: unless-stopped
+    image: budibase.docker.scarf.sh/budibase/worker
+    container_name: bbworker
+    environment:
+      SELF_HOSTED: 1
+      PORT: 4003
+      CLUSTER_PORT: $$cap_MAIN_PORT
+      JWT_SECRET: $$cap_JWT_SECRET
+      MINIO_ACCESS_KEY: $$cap_MINIO_ACCESS_KEY
+      MINIO_SECRET_KEY: $$cap_MINIO_SECRET_KEY
+      MINIO_URL: $$cap_MINIO_URL
+      APPS_URL: $$cap_APPS_URL
+      COUCH_DB_USERNAME: $$cap_COUCH_DB_USERNAME
+      COUCH_DB_PASSWORD: $$cap_COUCH_DB_PASSWORD
+      COUCH_DB_URL: $$cap_COUCH_DB_URL
+      SENTRY_DSN: $$cap_SENTRY_DSN
+      INTERNAL_API_KEY: $$cap_INTERNAL_API_KEY
+      REDIS_URL: $$cap_REDIS_URL
+      REDIS_PASSWORD: $$cap_REDIS_PASSWORD
+  $$cap_appname-proxy-service:
+    restart: unless-stopped
+    ports:
+      - "${MAIN_PORT}:10000"
+    container_name: bbproxy
+    image: budibase/proxy
+    environment:
+      - PROXY_RATE_LIMIT_WEBHOOKS_PER_SECOND=$$cap_PROXY_RATE_LIMIT_WEBHOOKS_PER_SECOND
+      - PROXY_RATE_LIMIT_API_PER_SECOND=$$cap_PROXY_RATE_LIMIT_API_PER_SECOND
+    depends_on:
+      - $$cap_appname-worker
+      - $$cap_appname
+  $$cap_appname-watchtower:
+    restart: always
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --debug --http-api-update bbapps bbworker bbproxy
+    environment:
+      - WATCHTOWER_HTTP_API=true
+      - WATCHTOWER_HTTP_API_TOKEN=budibase
+      - WATCHTOWER_CLEANUP=true
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+caproverOneClickApp:
+    variables:
+        - id: $$cap_BUDIBASE_ENVIRONMENT
+          label: General | BUDIBASE_ENVIRONMENT
+          description: Set your server running environment. You can leave the default value.
+          defaultValue: 'PRODUCTION'
+        - id: $$cap_JWT_SECRET
+          label: Authentication | JWT_SECRET
+          description: JWT_SECRET
+          defaultValue: 'nooneknowthissecret'
+        - id: $$cap_INTERNAL_API_KEY
+          label: Authentication | INTERNAL_API_KEY
+          description: INTERNAL_API_KEY
+          defaultValue: ''
+        - id: $$cap_BB_ADMIN_USER_EMAIL
+          label: Authentication | BB_ADMIN_USER_EMAIL
+          description: BB_ADMIN_USER_EMAIL
+          defaultValue: ''
+        - id: $$cap_BB_ADMIN_USER_PASSWORD
+          label: Authentication | BB_ADMIN_USER_PASSWORD
+          description: BB_ADMIN_USER_PASSWORD
+          defaultValue: ''
+        - id: $$cap_MINIO_URL
+          label: Storage | MINIO_URL
+          description: MINIO_URL
+          defaultValue: ''
+        - id: $$cap_MINIO_SECRET_KEY
+          label: Storage | MINIO_SECRET_KEY
+          description: MINIO_SECRET_KEY
+          defaultValue: ''
+        - id: $$cap_MINIO_ACCESS_KEY
+          label: Storage | MINIO_ACCESS_KEY
+          description: MINIO_ACCESS_KEY
+          defaultValue: ''
+        - id: $$cap_COUCH_DB_URL
+          label: Storage | COUCH_DB_URL
+          description: COUCH_DB_URL
+          defaultValue: ''
+        - id: $$cap_COUCH_DB_USER
+          label: Storage | COUCH_DB_USER
+          description: COUCH_DB_USER
+          defaultValue: 'budibase'
+        - id: $$cap_COUCH_DB_PASSWORD
+          label: Storage | COUCH_DB_PASSWORD
+          description: COUCH_DB_PASSWORD
+          defaultValue: ''
+        - id: $$cap_REDIS_URL
+          label: Storage | REDIS_URL
+          description: REDIS_URL
+          defaultValue: ''
+        - id: $$cap_REDIS_PASSWORD
+          label: Storage | REDIS_PASSWORD
+          description: REDIS_PASSWORD
+          defaultValue: ''
+        - id: $$cap_SENTRY_DSN
+          label: Analytics | SENTRY_DSN
+          description: SENTRY_DSN
+          defaultValue: 'https://a34ae347621946bf8acded18e5b7d4b8@o420233.ingest.sentry.io/5338131'
+        - id: $$cap_ENABLE_ANALYTICS
+          label: Analytics | ENABLE_ANALYTICS
+          description: ENABLE_ANALYTICS
+          defaultValue: 'false'
+        - id: $$cap_MAIN_PORT
+          label: Expose | MAIN_PORT
+          description: MAIN_PORT
+          defaultValue: '10000'
+    instructions:
+        end: >
+            To help you get started with Budibase, we've created two quickstart tutorials. With both tutorials, we build the same app, using the same data, just stored in different databases.
+            https://docs.budibase.com/docs/build-a-crud-app - This tutorial is faster and easier to complete - there's no need to connect to an external database such as PostgreSQL. Everything you need is right within Budibase. This tutorial takes under 5 minutes.
+            https://docs.budibase.com/docs/build-a-crud-app-sql - This tutorial should take between 5 and 10 minutes and involves connecting to a PostgreSQL database.
+        start: Budibase is an open-source low code platform that helps you create business apps in minutes
+    displayName: Budibase
+    isOfficial: true
+    description: Budibase is an open-source low code platform that helps you create business apps in minutes
+    documentation: https://docs.budibase.com/docs/quickstart-tutorials
