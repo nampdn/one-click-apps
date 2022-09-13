@@ -9,7 +9,7 @@ services:
     environment:
       SELF_HOSTED: 1
       COUCH_DB_URL: $$cap_COUCH_DB_URL
-      WORKER_URL: $$cap_appname_worker.$$cap_root_domain
+      WORKER_URL: $$cap_appname_worker
       MINIO_URL: $$cap_MINIO_URL
       MINIO_ACCESS_KEY: $$cap_MINIO_ACCESS_KEY
       MINIO_SECRET_KEY: $$cap_MINIO_SECRET_KEY
@@ -46,6 +46,13 @@ services:
       INTERNAL_API_KEY: $$cap_INTERNAL_API_KEY
       REDIS_URL: $$cap_REDIS_URL
       REDIS_PASSWORD: $$cap_REDIS_PASSWORD
+  couch-init:
+    image: curlimages/curl
+    environment:
+      PUT_CALL: "curl -u $$cap_COUCH_DB_USERNAME:$$cap_COUCH_DB_PASSWORD -X PUT $$cap_COUCH_DB_URL"
+    depends_on:
+      - couchdb-service
+    command: ["sh","-c","sleep 10 && $${PUT_CALL}/_users && $${PUT_CALL}/_replicator; fg;"]
   $$cap_appname-proxy-service:
     restart: unless-stopped
     ports:
@@ -136,6 +143,14 @@ caproverOneClickApp:
           label: Expose | MAIN_PORT
           description: MAIN_PORT
           defaultValue: '10000'
+        - id: $$cap_PROXY_RATE_LIMIT_WEBHOOKS_PER_SECOND
+          label: Misc | PROXY_RATE_LIMIT_WEBHOOKS_PER_SECOND
+          description: PROXY_RATE_LIMIT_WEBHOOKS_PER_SECOND
+          defaultValue: 10
+        - id: $$cap_PROXY_RATE_LIMIT_API_PER_SECOND
+          label: Misc | PROXY_RATE_LIMIT_API_PER_SECOND
+          description: PROXY_RATE_LIMIT_API_PER_SECOND
+          defaultValue: 20
     instructions:
         end: >
             To help you get started with Budibase, we've created two quickstart tutorials. With both tutorials, we build the same app, using the same data, just stored in different databases.
