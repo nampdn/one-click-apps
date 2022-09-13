@@ -1,82 +1,87 @@
 captainVersion: 4
-version: "3"
+version: '3'
 # optional ports are specified throughout for more advanced use cases.
 
 services:
-  $$cap_appname:
-    restart: unless-stopped
-    image: budibase.docker.scarf.sh/budibase/apps
-    environment:
-      SELF_HOSTED: 1
-      COUCH_DB_URL: $$cap_COUCH_DB_URL
-      WORKER_URL: $$cap_appname_worker
-      MINIO_URL: $$cap_MINIO_URL
-      MINIO_ACCESS_KEY: $$cap_MINIO_ACCESS_KEY
-      MINIO_SECRET_KEY: $$cap_MINIO_SECRET_KEY
-      INTERNAL_API_KEY: $$cap_INTERNAL_API_KEY
-      BUDIBASE_ENVIRONMENT: $$cap_BUDIBASE_ENVIRONMENT
-      PORT: 4002
-      JWT_SECRET: $$cap_JWT_SECRET
-      LOG_LEVEL: $$cap_LOG_LEVEL
-      SENTRY_DSN: $$cap_SENTRY_DSN
-      ENABLE_ANALYTICS: $$cap_ENABLE_ANALYTICS
-      REDIS_URL: $$cap_REDIS_URL
-      REDIS_PASSWORD: $$cap_REDIS_PASSWORD
-      BB_ADMIN_USER_EMAIL: $$cap_BB_ADMIN_USER_EMAIL
-      BB_ADMIN_USER_PASSWORD: $$cap_BB_ADMIN_USER_PASSWORD
-    depends_on:
-      - $$cap_appname-worker
-  $$cap_appname-worker:
-    restart: unless-stopped
-    image: budibase.docker.scarf.sh/budibase/worker
-    container_name: bbworker
-    environment:
-      SELF_HOSTED: 1
-      PORT: 4003
-      CLUSTER_PORT: $$cap_MAIN_PORT
-      JWT_SECRET: $$cap_JWT_SECRET
-      MINIO_ACCESS_KEY: $$cap_MINIO_ACCESS_KEY
-      MINIO_SECRET_KEY: $$cap_MINIO_SECRET_KEY
-      MINIO_URL: $$cap_MINIO_URL
-      APPS_URL: $$cap_APPS_URL
-      COUCH_DB_USERNAME: $$cap_COUCH_DB_USERNAME
-      COUCH_DB_PASSWORD: $$cap_COUCH_DB_PASSWORD
-      COUCH_DB_URL: $$cap_COUCH_DB_URL
-      SENTRY_DSN: $$cap_SENTRY_DSN
-      INTERNAL_API_KEY: $$cap_INTERNAL_API_KEY
-      REDIS_URL: $$cap_REDIS_URL
-      REDIS_PASSWORD: $$cap_REDIS_PASSWORD
-  couch-init:
-    image: curlimages/curl
-    environment:
-      PUT_CALL: "curl -u $$cap_COUCH_DB_USERNAME:$$cap_COUCH_DB_PASSWORD -X PUT $$cap_COUCH_DB_URL"
-    depends_on:
-      - couchdb-service
-    command: ["sh","-c","sleep 10 && $${PUT_CALL}/_users && $${PUT_CALL}/_replicator; fg;"]
-  $$cap_appname-proxy-service:
-    restart: unless-stopped
-    ports:
-      - "${MAIN_PORT}:10000"
-    container_name: bbproxy
-    image: budibase/proxy
-    environment:
-      - PROXY_RATE_LIMIT_WEBHOOKS_PER_SECOND=$$cap_PROXY_RATE_LIMIT_WEBHOOKS_PER_SECOND
-      - PROXY_RATE_LIMIT_API_PER_SECOND=$$cap_PROXY_RATE_LIMIT_API_PER_SECOND
-    depends_on:
-      - $$cap_appname-worker
-      - $$cap_appname
-  $$cap_appname-watchtower:
-    restart: always
-    image: containrrr/watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --debug --http-api-update bbapps bbworker bbproxy
-    environment:
-      - WATCHTOWER_HTTP_API=true
-      - WATCHTOWER_HTTP_API_TOKEN=budibase
-      - WATCHTOWER_CLEANUP=true
-    labels:
-      - "com.centurylinklabs.watchtower.enable=false"
+    $$cap_appname:
+        restart: unless-stopped
+        image: budibase.docker.scarf.sh/budibase/apps
+        environment:
+            SELF_HOSTED: 1
+            COUCH_DB_URL: $$cap_COUCH_DB_URL
+            WORKER_URL: $$cap_appname_worker
+            MINIO_URL: $$cap_MINIO_URL
+            MINIO_ACCESS_KEY: $$cap_MINIO_ACCESS_KEY
+            MINIO_SECRET_KEY: $$cap_MINIO_SECRET_KEY
+            INTERNAL_API_KEY: $$cap_INTERNAL_API_KEY
+            BUDIBASE_ENVIRONMENT: $$cap_BUDIBASE_ENVIRONMENT
+            PORT: 4002
+            JWT_SECRET: $$cap_JWT_SECRET
+            LOG_LEVEL: $$cap_LOG_LEVEL
+            SENTRY_DSN: $$cap_SENTRY_DSN
+            ENABLE_ANALYTICS: $$cap_ENABLE_ANALYTICS
+            REDIS_URL: $$cap_REDIS_URL
+            REDIS_PASSWORD: $$cap_REDIS_PASSWORD
+            BB_ADMIN_USER_EMAIL: $$cap_BB_ADMIN_USER_EMAIL
+            BB_ADMIN_USER_PASSWORD: $$cap_BB_ADMIN_USER_PASSWORD
+        depends_on:
+            - $$cap_appname-worker
+    $$cap_appname-worker:
+        restart: unless-stopped
+        image: budibase.docker.scarf.sh/budibase/worker
+        container_name: bbworker
+        environment:
+            SELF_HOSTED: 1
+            PORT: 4003
+            CLUSTER_PORT: $$cap_MAIN_PORT
+            JWT_SECRET: $$cap_JWT_SECRET
+            MINIO_ACCESS_KEY: $$cap_MINIO_ACCESS_KEY
+            MINIO_SECRET_KEY: $$cap_MINIO_SECRET_KEY
+            MINIO_URL: $$cap_MINIO_URL
+            APPS_URL: $$cap_APPS_URL
+            COUCH_DB_USERNAME: $$cap_COUCH_DB_USERNAME
+            COUCH_DB_PASSWORD: $$cap_COUCH_DB_PASSWORD
+            COUCH_DB_URL: $$cap_COUCH_DB_URL
+            SENTRY_DSN: $$cap_SENTRY_DSN
+            INTERNAL_API_KEY: $$cap_INTERNAL_API_KEY
+            REDIS_URL: $$cap_REDIS_URL
+            REDIS_PASSWORD: $$cap_REDIS_PASSWORD
+    couch-init:
+        image: curlimages/curl
+        environment:
+            PUT_CALL: 'curl -u $$cap_COUCH_DB_USERNAME:$$cap_COUCH_DB_PASSWORD -X PUT $$cap_COUCH_DB_URL'
+        depends_on:
+            - couchdb-service
+        command:
+            [
+                'sh',
+                '-c',
+                'sleep 10 && $${PUT_CALL}/_users && $${PUT_CALL}/_replicator; fg;',
+            ]
+    $$cap_appname-proxy-service:
+        restart: unless-stopped
+        ports:
+            - '${MAIN_PORT}:10000'
+        container_name: bbproxy
+        image: budibase/proxy
+        environment:
+            - PROXY_RATE_LIMIT_WEBHOOKS_PER_SECOND=$$cap_PROXY_RATE_LIMIT_WEBHOOKS_PER_SECOND
+            - PROXY_RATE_LIMIT_API_PER_SECOND=$$cap_PROXY_RATE_LIMIT_API_PER_SECOND
+        depends_on:
+            - $$cap_appname-worker
+            - $$cap_appname
+    $$cap_appname-watchtower:
+        restart: always
+        image: containrrr/watchtower
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        command: --debug --http-api-update bbapps bbworker bbproxy
+        environment:
+            - WATCHTOWER_HTTP_API=true
+            - WATCHTOWER_HTTP_API_TOKEN=budibase
+            - WATCHTOWER_CLEANUP=true
+        labels:
+            - 'com.centurylinklabs.watchtower.enable=false'
 caproverOneClickApp:
     variables:
         - id: $$cap_BUDIBASE_ENVIRONMENT
