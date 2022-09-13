@@ -110,9 +110,9 @@ caproverOneClickApp:
           label: Storage | COUCH_DB_URL
           description: COUCH_DB_URL
           defaultValue: ''
-        - id: $$cap_COUCH_DB_USER
-          label: Storage | COUCH_DB_USER
-          description: COUCH_DB_USER
+        - id: $$cap_COUCH_DB_USERNAME
+          label: Storage | COUCH_DB_USERNAME
+          description: COUCH_DB_USERNAME
           defaultValue: 'budibase'
         - id: $$cap_COUCH_DB_PASSWORD
           label: Storage | COUCH_DB_PASSWORD
