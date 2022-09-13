@@ -48,8 +48,10 @@ services:
             REDIS_PASSWORD: $$cap_REDIS_PASSWORD
     $$cap_appname-proxy-service:
         restart: unless-stopped
+        caproverExtra:
+            containerHttpPort: $$cap_MAIN_PORT
         ports:
-            - '${MAIN_PORT}:10000'
+            - $$cap_MAIN_PORT:10000
         container_name: bbproxy
         image: budibase/proxy
         environment:
