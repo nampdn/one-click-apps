@@ -9,7 +9,7 @@ services:
         environment:
             SELF_HOSTED: 1
             COUCH_DB_URL: $$cap_COUCH_DB_URL
-            WORKER_URL: $$cap_appname_worker
+            WORKER_URL: $$cap_appname-worker:4002
             MINIO_URL: $$cap_MINIO_URL
             MINIO_ACCESS_KEY: $$cap_MINIO_ACCESS_KEY
             MINIO_SECRET_KEY: $$cap_MINIO_SECRET_KEY
@@ -41,7 +41,7 @@ services:
             APPS_URL: $$cap_APPS_URL
             COUCH_DB_USERNAME: $$cap_COUCH_DB_USERNAME
             COUCH_DB_PASSWORD: $$cap_COUCH_DB_PASSWORD
-            COUCH_DB_URL: $$cap_COUCH_DB_URL
+            COUCH_DB_URL: $$cap_COUCH_DB_CREDENTIAL_URL
             SENTRY_DSN: $$cap_SENTRY_DSN
             INTERNAL_API_KEY: $$cap_INTERNAL_API_KEY
             REDIS_URL: $$cap_REDIS_URL
