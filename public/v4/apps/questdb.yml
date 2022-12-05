@@ -15,7 +15,7 @@ caproverOneClickApp:
     variables:
         - id: $$cap_questdb_version
           label: QuestDB Version
-          defaultValue: '6.5.2'
+          defaultValue: '6.6.1'
           description: Check out their Docker page for the valid tags https://hub.docker.com/r/questdb/questdb/tags
           validRegex: /^([^\s^\/])+$/
         - id: $$cap_qdb_http_bind_to
