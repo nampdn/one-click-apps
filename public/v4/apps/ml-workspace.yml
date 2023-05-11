@@ -5,6 +5,7 @@ services:
         restart: unless-stopped
         volumes:
             - $$cap_workspace_path:/workspace
+            - $$cap_data_path:/data
             - $$cap_conda_envs:/opt/conda/envs
         environment:
             AUTHENTICATE_VIA_JUPYTER: $$cap_jupyterlab_token
@@ -23,6 +24,10 @@ caproverOneClickApp:
           description: Host path to mount predefined user_data
           defaultValue: /mnt/workspace
           id: $$cap_workspace_path
+        - label: Data Path
+          description: Data path to mount
+          defaultValue: /mnt/data
+          id: $$cap_data_path
         - label: Conda Envs Path
           description: Host path to mount apt cache env
           defaultValue: /mnt/conda-envs
